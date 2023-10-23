@@ -1,0 +1,5 @@
+<% pull_requests.each do |pr| -%>
+  <% unless pr.title.include?("(staging用)") || pr.title.include?("[staging]") -%>
+    - #<%= pr.number %> <%= pr.mention %>
+  <% end -%>
+<% end -%>
