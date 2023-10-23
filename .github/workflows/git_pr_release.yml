@@ -2,6 +2,7 @@
 
 name: git-pr-release
 on:
+  workflow_dispatch:
   push:
     branches:
       - develop
