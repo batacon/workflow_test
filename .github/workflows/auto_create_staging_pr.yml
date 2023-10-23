@@ -2,35 +2,39 @@ name: Auto Create PR to staging from feature branch
 
 on:
   pull_request:
-    types: [ opened ]
-    branches: [ develop ]
+    types: [opened]
+    branches: [develop]
 
 jobs:
-  action:
+  create_staging_pr:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
-      - name: Set variables
+      - name: Add Label
+        uses: andymckay/labeler@1.0.4
+        with:
+          add-labels: 'develop, pending'
+      - name: Set Assignee
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr edit ${{ github.event.pull_request.number }} --add-assignee ${{ github.event.pull_request.user.login }}
+      - name: Prepare PR Body
         run: |
           echo 'PR_BODY<<EOF' >> $GITHUB_ENV
-          echo "the same as #${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+          echo "Automated PR. Original PR is #${{ github.event.pull_request.number }}" >> $GITHUB_ENV
           echo "" >> $GITHUB_ENV
           echo "---" >> $GITHUB_ENV
           echo "" >> $GITHUB_ENV
           echo "${{ github.event.pull_request.body }}" >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
-      - name: pull-request
+      - name: Create PR to staging
         uses: repo-sync/pull-request@v2
         with:
-          source_branch: "${{ github.event.pull_request.head.ref }}"
+          source_branch: '${{ github.event.pull_request.head.ref }}'
           destination_branch: staging
           github_token: ${{ secrets.GITHUB_TOKEN }}
           pr_label: staging
-          pr_title: "${{ github.event.pull_request.title }}"
-          pr_body : |
-            ${{ env.PR_BODY }}
-      - name: Labeling
-        uses: andymckay/labeler@master
-        with:
-          add-labels: "develop"
+          pr_assignee: ${{ github.event.pull_request.user.login }}
+          pr_title: '${{ github.event.pull_request.title }}(staging用)'
+          pr_body: ${{ env.PR_BODY }}
