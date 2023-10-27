@@ -14,9 +14,11 @@ jobs:
         run: |
           git config user.name "GitHub Actions"
           git config user.email "github-actions@example.com"
-          git fetch origin staging:staging
+          git fetch origin ${{ github.event.pull_request.head.ref }}
+          git checkout ${{ github.event.pull_request.head.ref }}
           git checkout -b ${{ github.event.pull_request.head.ref }}-stg
-          git merge --strategy=ort staging --allow-unrelated-histories
+          git fetch origin staging:staging
+          git merge --strategy=recursive staging --allow-unrelated-histories
           git push origin ${{ github.event.pull_request.head.ref }}-stg
       - name: Add Label
         uses: andymckay/labeler@1.0.4
