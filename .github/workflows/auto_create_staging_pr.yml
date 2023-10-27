@@ -12,12 +12,19 @@ jobs:
       - uses: actions/checkout@v2
       - name: Create and push -stg branch
         run: |
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}-stg"
           git config user.name "GitHub Actions"
           git config user.email "github-actions@example.com"
-          git fetch origin staging:staging
-          git checkout -b ${{ github.event.pull_request.head.ref }}-stg
-          git merge staging --allow-unrelated-histories
-          git push origin ${{ github.event.pull_request.head.ref }}-stg
+
+          git fetch origin staging:staging || exit 1
+          git checkout -b $BRANCH_NAME || exit 1
+          git merge --strategy=ort staging || {
+            echo "Merge conflict occurred. Exiting."
+            exit 1
+          }
+
+          git push origin $BRANCH_NAME || exit 1
+
       - name: Add Label
         uses: andymckay/labeler@1.0.4
         with:
