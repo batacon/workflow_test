@@ -10,6 +10,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Create and push -stg branch
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@example.com"
+          git fetch origin ${{ github.event.pull_request.head.ref }}
+          git checkout ${{ github.event.pull_request.head.ref }}
+          git checkout -b ${{ github.event.pull_request.head.ref }}-stg
+          git fetch origin staging:staging
+          git merge --strategy=recursive staging --allow-unrelated-histories
+          git push origin ${{ github.event.pull_request.head.ref }}-stg
       - name: Add Label
         uses: andymckay/labeler@1.0.4
         with:
@@ -31,7 +41,7 @@ jobs:
       - name: Create PR to staging
         uses: repo-sync/pull-request@v2
         with:
-          source_branch: '${{ github.event.pull_request.head.ref }}'
+          source_branch: '${{ github.event.pull_request.head.ref }}-stg'
           destination_branch: staging
           github_token: ${{ secrets.GITHUB_TOKEN }}
           pr_label: staging
