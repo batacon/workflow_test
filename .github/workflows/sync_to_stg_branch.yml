@@ -23,7 +23,6 @@ jobs:
           git checkout $stg_branch
           git branch -a
           git status
-          git log $original_branch
-          git log $stg_branch
+          git diff
           git merge --strategy=recursive origin/$original_branch --allow-unrelated-histories
           git push origin $stg_branch
