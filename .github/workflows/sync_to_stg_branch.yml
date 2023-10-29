@@ -17,11 +17,12 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "github-actions@example.com"
           original_branch=${GITHUB_REF#refs/heads/}
-          echo "Original branch: $original_branch"
           stg_branch="${original_branch}-stg"
-          echo "Staging branch: $stg_branch"
           git fetch origin $stg_branch:$stg_branch || { echo "$stg_branch does not exist, skipping."; exit 0; }
-          git fetch origin $original_branch
+
+          git fetch origin $original_branch:$original_branch
           git checkout $stg_branch
+          git branch -a
+          git status
           git merge git merge --strategy=recursive $original_branch --allow-unrelated-histories
           git push origin $stg_branch
