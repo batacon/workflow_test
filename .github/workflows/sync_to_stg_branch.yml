@@ -12,19 +12,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Setup Git and sync to -stg branch
+      - name: Sync to -stg branch (if exists)
         run: |
+          # Setup Git
           git config user.name "GitHub Actions"
           git config user.email "github-actions@example.com"
+
+          # Define branch names
           original_branch=${GITHUB_REF#refs/heads/}
           stg_branch="${original_branch}-stg"
-          git fetch origin $stg_branch:$stg_branch || { echo "$stg_branch does not exist, skipping."; exit 0; }
 
+          # Fetch and Checkout -stg Branch (quit if it doesn't exist)
+          git fetch origin $stg_branch:$stg_branch || { echo "$stg_branch does not exist, skipping."; exit 0; }
           git checkout $stg_branch
-          git branch -a
-          git status
-          git diff
+
+          # Reset and Force Push Staging Branch
           git reset --hard origin/$original_branch
           git push -f origin $stg_branch
+
+          # Merge Original Branch into -stg Branch
           git merge --strategy=recursive origin/$original_branch --allow-unrelated-histories
           git push origin $stg_branch
