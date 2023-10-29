@@ -13,8 +13,8 @@ jobs:
       - name: Create and push -stg branch
         run: |
           # Setup Git
-          git config user.name "GitHub Actions"
-          git config user.email "github-actions@example.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           # Create and checkout new -stg branch from original branch
           git fetch origin ${{ github.event.pull_request.head.ref }}
