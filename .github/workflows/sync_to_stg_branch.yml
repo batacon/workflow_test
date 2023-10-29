@@ -21,5 +21,5 @@ jobs:
           git fetch origin $original_branch
           git fetch origin $stg_branch:$stg_branch || { echo "$stg_branch does not exist, skipping."; exit 0; }
           git checkout $stg_branch
-          git merge --strategy=recursive $original_branch --allow-unrelated-histories || { echo 'Merge conflict!'; exit 1; }
-          git push origin $stg_branch
+          git rebase $original_branch || { echo 'Rebase conflict!'; exit 1; }
+          git push origin $stg_branch --force-with-lease
