@@ -20,7 +20,6 @@ jobs:
           stg_branch="${original_branch}-stg"
           git fetch origin $stg_branch:$stg_branch || { echo "$stg_branch does not exist, skipping."; exit 0; }
 
-          git fetch origin $original_branch:$original_branch
           git checkout $stg_branch
           git branch -a
           git status
