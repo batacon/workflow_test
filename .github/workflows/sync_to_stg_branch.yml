@@ -1,0 +1,31 @@
+name: Sync to -stg branch
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'fix/**'
+
+jobs:
+  sync-to-stg:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Sync to -stg branch (if exists)
+        run: |
+          # Setup Git
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Define branch names
+          original_branch=${GITHUB_REF#refs/heads/}
+          stg_branch="${original_branch}-stg"
+
+          # Fetch and Checkout -stg Branch (quit if it doesn't exist)
+          git fetch origin $stg_branch:$stg_branch || { echo "$stg_branch does not exist, skipping."; exit 0; }
+          git checkout $stg_branch
+
+          # Reset and Force Push Staging Branch
+          git reset --hard origin/$original_branch
+          git push -f origin $stg_branch
