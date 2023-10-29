@@ -29,7 +29,3 @@ jobs:
           # Reset and Force Push Staging Branch
           git reset --hard origin/$original_branch
           git push -f origin $stg_branch
-
-          # Merge Original Branch into -stg Branch
-          git merge --strategy=recursive origin/$original_branch --allow-unrelated-histories
-          git push origin $stg_branch
