@@ -23,7 +23,7 @@ jobs:
           stg_branch="${original_branch}-stg"
 
           # Fetch and Checkout -stg Branch (quit if it doesn't exist)
-          git fetch origin $stg_branch:$stg_branch || { echo "$stg_branch does not exist, skipping."; exit 0; }
+          git fetch origin $stg_branch:$stg_branch || { echo "$stg_branch が存在しないのでスキップします"; exit 0; }
           git checkout $stg_branch
 
           # Reset and Force Push Staging Branch

@@ -23,7 +23,13 @@ jobs:
 
           # Merge staging into new -stg branch and push
           git fetch origin staging:staging
-          git merge --strategy=recursive staging --allow-unrelated-histories
+
+          # Try to merge and catch any merge failures
+          if git merge --strategy=recursive staging --allow-unrelated-histories; then
+            echo "staging branchを${{ github.event.pull_request.head.ref }}-stgにマージしました。"
+          else
+            echo "staging branchを${{ github.event.pull_request.head.ref }}-stgにマージできませんでした。コンフリクトを解消してください。"
+          fi
           git push origin ${{ github.event.pull_request.head.ref }}-stg
       - name: Add Label
         uses: andymckay/labeler@1.0.4
