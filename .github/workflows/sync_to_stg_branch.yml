@@ -4,6 +4,7 @@ on:
     branches:
       - 'feature/**'
       - 'fix/**'
+      - 'hotfix/**'
 
 jobs:
   sync-to-stg:
@@ -23,9 +24,18 @@ jobs:
           stg_branch="${original_branch}-stg"
 
           # Fetch and Checkout -stg Branch (quit if it doesn't exist)
-          git fetch origin $stg_branch:$stg_branch || { echo "$stg_branch does not exist, skipping."; exit 0; }
+          git fetch origin $stg_branch:$stg_branch || { echo "$stg_branch が存在しないのでスキップします"; exit 0; }
           git checkout $stg_branch
 
-          # Reset and Force Push Staging Branch
+          # original_branchに加えた変更をstg_branchに完全に同期する(mergeやrebaseだとどうしてもconflictになるためreset --hard)
           git reset --hard origin/$original_branch
           git push -f origin $stg_branch
+
+          # Try to merge staging and catch any merge failures
+          git fetch origin staging:staging
+          if git merge --strategy=recursive staging --allow-unrelated-histories; then
+            echo "stagingブランチを$stg_branchブランチにマージしました。"
+          else
+            echo "stagingブランチを$stg_branchブランチにマージできませんでした。手動でコンフリクトを解消してください。"
+          fi
+          git push origin $stg_branch

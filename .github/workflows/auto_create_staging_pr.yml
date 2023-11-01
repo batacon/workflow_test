@@ -21,9 +21,13 @@ jobs:
           git checkout ${{ github.event.pull_request.head.ref }}
           git checkout -b ${{ github.event.pull_request.head.ref }}-stg
 
-          # Merge staging into new -stg branch and push
+          # Try to merge staging and catch any merge failures
           git fetch origin staging:staging
-          git merge --strategy=recursive staging --allow-unrelated-histories
+          if git merge --strategy=recursive staging --allow-unrelated-histories; then
+            echo "stagingブランチを${{ github.event.pull_request.head.ref }}-stgブランチにマージしました。"
+          else
+            echo "stagingブランチを${{ github.event.pull_request.head.ref }}-stgブランチにマージできませんでした。手動でコンフリクトを解消してください。"
+          fi
           git push origin ${{ github.event.pull_request.head.ref }}-stg
       - name: Add Label
         uses: andymckay/labeler@1.0.4
