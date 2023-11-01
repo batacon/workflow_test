@@ -10,6 +10,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Create and push -stg branch
+        run: |
+          # Setup Git
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Create and checkout new -stg branch from original branch
+          git fetch origin ${{ github.event.pull_request.head.ref }}
+          git checkout ${{ github.event.pull_request.head.ref }}
+          git checkout -b ${{ github.event.pull_request.head.ref }}-stg
+
+          # Try to merge staging and catch any merge failures
+          git fetch origin staging:staging
+          if git merge --strategy=recursive staging --allow-unrelated-histories; then
+            echo "stagingブランチを${{ github.event.pull_request.head.ref }}-stgブランチにマージしました。"
+          else
+            echo "stagingブランチを${{ github.event.pull_request.head.ref }}-stgブランチにマージできませんでした。手動でコンフリクトを解消してください。"
+          fi
+          git push origin ${{ github.event.pull_request.head.ref }}-stg
       - name: Add Label
         uses: andymckay/labeler@1.0.4
         with:
@@ -31,7 +50,7 @@ jobs:
       - name: Create PR to staging
         uses: repo-sync/pull-request@v2
         with:
-          source_branch: '${{ github.event.pull_request.head.ref }}'
+          source_branch: '${{ github.event.pull_request.head.ref }}-stg'
           destination_branch: staging
           github_token: ${{ secrets.GITHUB_TOKEN }}
           pr_label: staging

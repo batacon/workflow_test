@@ -1,0 +1,41 @@
+name: Sync to -stg branch
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'fix/**'
+      - 'hotfix/**'
+
+jobs:
+  sync-to-stg:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Sync to -stg branch (if exists)
+        run: |
+          # Setup Git
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Define branch names
+          original_branch=${GITHUB_REF#refs/heads/}
+          stg_branch="${original_branch}-stg"
+
+          # Fetch and Checkout -stg Branch (quit if it doesn't exist)
+          git fetch origin $stg_branch:$stg_branch || { echo "$stg_branch が存在しないのでスキップします"; exit 0; }
+          git checkout $stg_branch
+
+          # original_branchに加えた変更をstg_branchに完全に同期する(mergeやrebaseだとどうしてもconflictになるためreset --hard)
+          git reset --hard origin/$original_branch
+          git push -f origin $stg_branch
+
+          # Try to merge staging and catch any merge failures
+          git fetch origin staging:staging
+          if git merge --strategy=recursive staging --allow-unrelated-histories; then
+            echo "stagingブランチを$stg_branchブランチにマージしました。"
+          else
+            echo "stagingブランチを$stg_branchブランチにマージできませんでした。手動でコンフリクトを解消してください。"
+          fi
+          git push origin $stg_branch
