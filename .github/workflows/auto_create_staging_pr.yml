@@ -21,7 +21,7 @@ jobs:
           git checkout ${{ github.event.pull_request.head.ref }}
           git checkout -b ${{ github.event.pull_request.head.ref }}-stg
 
-          # Try to merge and catch any merge failures
+          # Try to merge staging and catch any merge failures
           git fetch origin staging:staging
           if git merge --strategy=recursive staging --allow-unrelated-histories; then
             echo "stagingブランチを${{ github.event.pull_request.head.ref }}-stgブランチにマージしました。"
