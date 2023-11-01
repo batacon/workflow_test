@@ -21,14 +21,12 @@ jobs:
           git checkout ${{ github.event.pull_request.head.ref }}
           git checkout -b ${{ github.event.pull_request.head.ref }}-stg
 
-          # Merge staging into new -stg branch and push
+          # Try to merge staging and catch any merge failures
           git fetch origin staging:staging
-
-          # Try to merge and catch any merge failures
           if git merge --strategy=recursive staging --allow-unrelated-histories; then
-            echo "staging branchを${{ github.event.pull_request.head.ref }}-stgにマージしました。"
+            echo "stagingブランチを${{ github.event.pull_request.head.ref }}-stgブランチにマージしました。"
           else
-            echo "staging branchを${{ github.event.pull_request.head.ref }}-stgにマージできませんでした。コンフリクトを解消してください。"
+            echo "stagingブランチを${{ github.event.pull_request.head.ref }}-stgブランチにマージできませんでした。手動でコンフリクトを解消してください。"
           fi
           git push origin ${{ github.event.pull_request.head.ref }}-stg
       - name: Add Label
