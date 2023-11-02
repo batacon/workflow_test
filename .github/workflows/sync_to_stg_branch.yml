@@ -33,9 +33,10 @@ jobs:
 
           # Try to merge staging and catch any merge failures
           git fetch origin staging:staging
-          if git merge --strategy=recursive staging --allow-unrelated-histories; then
+          if git merge --strategy=ours --allow-unrelated-histories staging; then
             echo "stagingブランチを$stg_branchブランチにマージしました。"
+            git push origin $stg_branch
           else
             echo "stagingブランチを$stg_branchブランチにマージできませんでした。手動でコンフリクトを解消してください。"
+            exit 0
           fi
-          git push origin $stg_branch
