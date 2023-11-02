@@ -33,7 +33,10 @@ jobs:
 
           # Try to merge staging and catch any merge failures
           git fetch origin staging:staging
-          if git merge --strategy=resolve --allow-unrelated-histories staging; then
+          git checkout staging
+          git fetch origin $stg_branch:$stg_branch
+          git checkout $stg_branch
+          if git merge --allow-unrelated-histories staging; then
             echo "stagingブランチを$stg_branchブランチにマージしました。"
             git push origin $stg_branch
           else
